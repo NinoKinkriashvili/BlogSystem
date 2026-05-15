@@ -1,0 +1,49 @@
+root = true
+
+# GLOBAL SETTINGS
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# C# CODE STYLE
+
+[*.cs]
+# Indentation
+indent_style = space
+indent_size = 4
+# Usings
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = true
+
+# NAMING CONVENTIONS
+
+dotnet_naming_rule.interface_should_start_with_i.severity = suggestion
+dotnet_naming_rule.interface_should_start_with_i.symbols = interfaces
+dotnet_naming_rule.interface_should_start_with_i.style = prefix_i
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_style.prefix_i.required_prefix = I
+dotnet_naming_style.prefix_i.capitalization = pascal_case
+
+# CODE QUALITY (IMPORTANT)
+
+# Prefer var when type is obvious
+csharp_style_var_when_type_is_apparent = true:suggestion
+# Expression-bodied members
+csharp_style_expression_bodied_methods = when_on_single_line:silent
+csharp_style_expression_bodied_properties = true:silent
+# Remove unnecessary usings
+dotnet_remove_unnecessary_suppression_exclusions = none
+
+# FORMATTING RULES
+
+csharp_new_line_before_open_brace = all
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+
+# OPTIONAL CLEAN ARCHITECTURE FRIENDLY
+
+# Prefer explicit access modifiers
+dotnet_style_require_accessibility_modifiers = always:suggestion

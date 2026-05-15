@@ -1,0 +1,38 @@
+# Build results
+bin/
+obj/
+out/
+publish/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# Visual Studio
+.vs/
+*.VC.db
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# App settings (ONLY if you store secrets here)
+appsettings.Development.json
+
+# NuGet
+*.nupkg
+.nuget/
+
+# EF Core migrations backup files (optional)
+*.db
+*.sqlite
+*.sqlite3
