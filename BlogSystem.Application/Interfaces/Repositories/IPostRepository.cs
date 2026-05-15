@@ -3,20 +3,19 @@ using BlogSystem.Domain.Entities;
 namespace BlogSystem.Application.Interfaces.Repositories;
 
 public interface IPostRepository
-{
-    Task<Post?> GetByIdAsync(Guid id);
+{ Task<Post?> GetByIdAsync(Guid id, CancellationToken ct);
 
-    Task<IEnumerable<Post>> GetAllAsync(int page, int itemPerPage);
+    Task<IEnumerable<Post>> GetAllAsync(int page, int itemPerPage, CancellationToken ct);
 
-    Task<IEnumerable<Post>> SearchAsync(string? searchResult, int page, int itemPerPage);
+    Task<IEnumerable<Post>> SearchAsync(string? searchResult, int page, int itemPerPage, CancellationToken ct);
 
-    Task<int> GetCountAsync(string? searchResult = null);
+    Task<int> GetCountAsync(string? searchResult = null, CancellationToken ct = default);
 
-    Task<IEnumerable<Post>> GetByUserIdAsync(Guid userId, int page, int itemPerPage);
+    Task<IEnumerable<Post>> GetByUserIdAsync(Guid userId, int page, int itemPerPage, CancellationToken ct);
 
-    Task CreateAsync(Post post);
+    Task CreateAsync(Post post, CancellationToken ct);
 
-    Task UpdateAsync(Post post);
+    Task UpdateAsync(Post post, CancellationToken ct);
 
-    Task DeleteAsync(Post post);
+    Task DeleteAsync(Post post, CancellationToken ct);
 }
