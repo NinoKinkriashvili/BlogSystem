@@ -20,4 +20,9 @@
         <Using Include="Xunit"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\BlogSystem.Application\BlogSystem.Application.csproj" />
+      <ProjectReference Include="..\BlogSystem.Domain\BlogSystem.Domain.csproj" />
+    </ItemGroup>
+
 </Project>
