@@ -11,7 +11,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="DTOs\Post\" />
       <Folder Include="Exceptions\" />
       <Folder Include="Interfaces\Repositories\" />
       <Folder Include="Interfaces\Services\" />
