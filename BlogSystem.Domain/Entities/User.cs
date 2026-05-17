@@ -10,4 +10,6 @@ public class User : BaseEntity
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; }
     public UserRole Role { get; set; }
+
+    public ICollection<Post> Posts { get; set; } = new List<Post>();
 }
