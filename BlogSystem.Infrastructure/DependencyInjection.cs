@@ -1,4 +1,5 @@
 using BlogSystem.Application.Interfaces.Repositories;
+using BlogSystem.Application.Interfaces.Security;
 using BlogSystem.Infrastructure.Persistence;
 using BlogSystem.Infrastructure.Persistence.Repositories;
 using BlogSystem.Infrastructure.Security;
@@ -21,8 +22,8 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPostRepository, PostRepository>();
 
-        services.AddSingleton<PasswordHasher>();
-        services.AddScoped<JwtService>();
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IJwtService, JwtService>();
 
         return services;
     }
