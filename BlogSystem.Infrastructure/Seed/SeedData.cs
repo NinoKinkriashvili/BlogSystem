@@ -1,16 +1,17 @@
 using BlogSystem.Domain.Entities;
 using BlogSystem.Domain.Enums;
 using BlogSystem.Infrastructure.Persistence;
-using BlogSystem.Infrastructure.Security;
+using BlogSystem.Application.Interfaces.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlogSystem.Infrastructure.Seed;
 
-public static class SeedData
+public class SeedData
 {
-    public static async Task InitializeAsync(BlogDbContext context)
+    public static async Task InitializeAsync(
+        BlogDbContext context,
+        IPasswordHasher passwordHasher)
     {
-        // DB + Migration
         await context.Database.MigrateAsync();
 
         var adminExists = await context.Users
@@ -25,7 +26,7 @@ public static class SeedData
             LastName = "Admin",
             UserName = "admin",
             Email = "admin@system.com",
-            PasswordHash = PasswordHasher.Hash("Admin123!"),
+            PasswordHash = passwordHasher.Hash("Admin123!"),
             Role = UserRole.Admin
         };
 

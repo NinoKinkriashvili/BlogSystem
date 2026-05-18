@@ -1,12 +1,15 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+
+using BlogSystem.Application.Interfaces.Security;
+
 using Microsoft.IdentityModel.Tokens;
 using BlogSystem.Domain.Entities;
 
 namespace BlogSystem.Infrastructure.Security;
 
-public class JwtService
+public class JwtService : IJwtService
 {
     private readonly string _secretKey;
     private readonly string _issuer;

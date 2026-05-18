@@ -1,17 +1,17 @@
 using System.Security.Cryptography;
+using BlogSystem.Application.Interfaces.Security;
 
 namespace BlogSystem.Infrastructure.Security;
 
-public class PasswordHasher
+public class PasswordHasher : IPasswordHasher
 {
-    private const int SaltSize = 16; // 128 bit
-    private const int KeySize = 32;  // 256 bit
+    private const int SaltSize = 16;
+    private const int KeySize = 32;
     private const int Iterations = 100000;
 
-    private static readonly HashAlgorithmName Algorithm = HashAlgorithmName.SHA256;  // PBKDF2
+    private static readonly HashAlgorithmName Algorithm = HashAlgorithmName.SHA256;
 
-    // REGISTER
-    public static string Hash(string password)
+    public string Hash(string password)
     {
         var salt = RandomNumberGenerator.GetBytes(SaltSize);
 
@@ -23,15 +23,14 @@ public class PasswordHasher
             KeySize);
 
         var hashBytes = new byte[SaltSize + KeySize];
+
         Buffer.BlockCopy(salt, 0, hashBytes, 0, SaltSize);
         Buffer.BlockCopy(hash, 0, hashBytes, SaltSize, KeySize);
 
-        // convert to base64 for DB storage
         return Convert.ToBase64String(hashBytes);
     }
 
-    // LOGIN
-    public static bool Verify(string password, string hashedPassword)
+    public bool Verify(string password, string hashedPassword)
     {
         var hashBytes = Convert.FromBase64String(hashedPassword);
 
