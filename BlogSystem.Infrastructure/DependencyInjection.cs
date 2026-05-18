@@ -2,7 +2,6 @@ using BlogSystem.Application.Interfaces.Repositories;
 using BlogSystem.Infrastructure.Persistence;
 using BlogSystem.Infrastructure.Persistence.Repositories;
 using BlogSystem.Infrastructure.Security;
-using BlogSystem.Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
