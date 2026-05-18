@@ -18,4 +18,6 @@ public interface IPostRepository
     Task UpdateAsync(Post post, CancellationToken ct);
 
     Task DeleteAsync(Post post, CancellationToken ct);
+
+    Task<int> GetCountByUserIdAsync(Guid userId, CancellationToken ct);
 }

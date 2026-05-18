@@ -91,4 +91,11 @@ public class PostRepository : IPostRepository
         _context.Posts.Remove(post);
         await _context.SaveChangesAsync(ct);
     }
+
+    public async Task<int> GetCountByUserIdAsync(Guid userId, CancellationToken ct)
+    {
+        return await _context.Posts
+            .Where(x => x.UserId == userId)
+            .CountAsync(ct);
+    }
 }

@@ -1,6 +1,8 @@
 using AutoMapper;
 using BlogSystem.Application.DTOs.Post;
 using BlogSystem.Application.DTOs.Shared;
+using BlogSystem.Application.Exceptions;
+using BlogSystem.Application.Interfaces.Repositories;
 using BlogSystem.Application.Interfaces.Services;
 using BlogSystem.Domain.Entities;
 
@@ -9,25 +11,34 @@ namespace BlogSystem.Application.Services;
 public class PostService : IPostService
 {
     private readonly IMapper _mapper;
+    private readonly IPostRepository _postRepository;
+    private readonly IUserRepository _userRepository;
 
-    public PostService(IMapper mapper)
+    public PostService(
+        IMapper mapper,
+        IPostRepository postRepository,
+        IUserRepository userRepository)
     {
         _mapper = mapper;
+        _postRepository = postRepository;
+        _userRepository = userRepository;
     }
 
     public async Task<PostDto?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        // TODO
-        return null;
+        var post = await _postRepository.GetByIdAsync(id, ct);
+        return post == null ? null : _mapper.Map<PostDto>(post);
     }
 
     public async Task<PagedResultDto<PostDto>> GetAllAsync(int page, int itemPerPage, CancellationToken ct)
     {
-        // TODO
+        var posts = await _postRepository.GetAllAsync(page, itemPerPage, ct);
+        var count = await _postRepository.GetCountAsync(null, ct);
+
         return new PagedResultDto<PostDto>
         {
-            Items = new List<PostDto>(),
-            TotalCount = 0,
+            Items = _mapper.Map<List<PostDto>>(posts),
+            TotalCount = count,
             Page = page,
             PageSize = itemPerPage
         };
@@ -35,11 +46,13 @@ public class PostService : IPostService
 
     public async Task<PagedResultDto<PostDto>> SearchAsync(string? searchResult, int page, int itemPerPage, CancellationToken ct)
     {
-        // TODO
+        var posts = await _postRepository.SearchAsync(searchResult, page, itemPerPage, ct);
+        var count = await _postRepository.GetCountAsync(searchResult, ct);
+
         return new PagedResultDto<PostDto>
         {
-            Items = new List<PostDto>(),
-            TotalCount = 0,
+            Items = _mapper.Map<List<PostDto>>(posts),
+            TotalCount = count,
             Page = page,
             PageSize = itemPerPage
         };
@@ -47,11 +60,18 @@ public class PostService : IPostService
 
     public async Task<PagedResultDto<PostDto>> GetByUserIdAsync(Guid userId, int page, int itemPerPage, CancellationToken ct)
     {
-        // TODO
+        var user = await _userRepository.GetByIdAsync(userId, ct);
+        if (user == null)
+            throw new NotFoundException("User not found");
+
+        var posts = await _postRepository.GetByUserIdAsync(userId, page, itemPerPage, ct);
+
+        var count = await _postRepository.GetCountByUserIdAsync(userId, ct);
+
         return new PagedResultDto<PostDto>
         {
-            Items = new List<PostDto>(),
-            TotalCount = 0,
+            Items = _mapper.Map<List<PostDto>>(posts),
+            TotalCount = count,
             Page = page,
             PageSize = itemPerPage
         };
@@ -59,29 +79,49 @@ public class PostService : IPostService
 
     public async Task<PostDto> CreateAsync(CreatePostDto dto, Guid userId, CancellationToken ct)
     {
+        var user = await _userRepository.GetByIdAsync(userId, ct);
+        if (user == null)
+            throw new NotFoundException("User not found");
+
         var post = _mapper.Map<Post>(dto);
 
         post.UserId = userId;
         post.CreatedAt = DateTime.UtcNow;
 
-        // TODO
+        await _postRepository.CreateAsync(post, ct);
+
         return _mapper.Map<PostDto>(post);
     }
 
     public async Task<PostDto> UpdateAsync(Guid id, UpdatePostDto dto, Guid userId, CancellationToken ct)
     {
-        // TODO: get from repository later
-        var post = new Post();
+        var post = await _postRepository.GetByIdAsync(id, ct);
+
+        if (post == null)
+            throw new NotFoundException("Post not found");
+
+        if (post.UserId != userId)
+            throw new ForbiddenException("You are not allowed to update this post");
 
         _mapper.Map(dto, post);
 
         post.UpdatedAt = DateTime.UtcNow;
-        // TODO
+
+        await _postRepository.UpdateAsync(post, ct);
+
         return _mapper.Map<PostDto>(post);
     }
 
     public async Task DeleteAsync(Guid id, Guid userId, CancellationToken ct)
     {
-        // TODO
+        var post = await _postRepository.GetByIdAsync(id, ct);
+
+        if (post == null)
+            throw new NotFoundException("Post not found");
+
+        if (post.UserId != userId)
+            throw new ForbiddenException("You are not allowed to delete this post");
+
+        await _postRepository.DeleteAsync(post, ct);
     }
 }
