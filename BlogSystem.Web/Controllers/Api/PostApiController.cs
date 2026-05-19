@@ -18,6 +18,7 @@ public class PostApiController : ControllerBase
     }
 
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAll(
         int page = 1,
@@ -29,17 +30,20 @@ public class PostApiController : ControllerBase
     }
 
 
+    [AllowAnonymous]
     [HttpGet("search")]
     public async Task<IActionResult> Search(
-        string? query,
+        string? search,
         int page = 1,
         int pageSize = 10,
         CancellationToken ct = default)
     {
-        var result = await _postService.SearchAsync(query, page, pageSize, ct);
+        var result = await _postService.SearchAsync(search, page, pageSize, ct);
         return Ok(result);
     }
 
+
+    [AllowAnonymous]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
@@ -65,7 +69,7 @@ public class PostApiController : ControllerBase
 
         var result = await _postService.CreateAsync(dto, userId, ct);
 
-        return Ok(result);
+        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
 
