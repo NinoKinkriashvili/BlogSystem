@@ -1,3 +1,8 @@
+using AutoMapper;
+using BlogSystem.Application.DTOs.Post;
+using BlogSystem.Application.Exceptions;
+using BlogSystem.Application.Interfaces.Services;
+using BlogSystem.Web.Models.Post;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,18 +11,39 @@ namespace BlogSystem.Web.Controllers;
 [Route("posts")]
 public class PostController : Controller
 {
-    [HttpGet("")]
-    public IActionResult Index(int page = 1, int pageSize = 10, string? search = null)
+    private readonly IPostService _postService;
+    private readonly IMapper _mapper;
+
+    public PostController(IPostService postService, IMapper mapper)
     {
-        // TODO
-        return View();
+        _postService = postService;
+        _mapper = mapper;
+    }
+
+    [HttpGet("")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string? search = null, CancellationToken ct = default)
+    {
+        var result = string.IsNullOrWhiteSpace(search)
+            ? await _postService.GetAllAsync(page, pageSize, ct)
+            : await _postService.SearchAsync(search, page, pageSize, ct);
+
+        var model = _mapper.Map<PostListViewModel>(result);
+        model.Search = search;
+        return View(model);
     }
 
     [HttpGet("{id:guid}")]
-    public IActionResult Details(Guid id)
+    [AllowAnonymous]
+    public async Task<IActionResult> Details(Guid id, CancellationToken ct)
     {
-        // TODO
-        return View();
+        var post = await _postService.GetByIdAsync(id, ct);
+
+        if (post == null)
+            return NotFound();
+
+        var model = _mapper.Map<PostDetailsViewModel>(post);
+        return View(model);
     }
 
     [Authorize(Roles = "User,Admin")]
@@ -29,33 +55,80 @@ public class PostController : Controller
 
     [Authorize(Roles = "User,Admin")]
     [HttpPost("create")]
-    public IActionResult Create(string title, string content)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(CreatePostViewModel model, CancellationToken ct)
     {
-        // TODO
-        return RedirectToAction(nameof(Index));
+        if (!ModelState.IsValid)
+            return View(model);
+
+        try
+        {
+            var dto = _mapper.Map<CreatePostDto>(model);
+            var userId = GetCurrentUserId();
+
+            await _postService.CreateAsync(dto, userId, ct);
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(model);
+        }
     }
 
     [Authorize(Roles = "User,Admin")]
     [HttpGet("edit/{id:guid}")]
-    public IActionResult Edit(Guid id)
+    public async Task<IActionResult> Edit(Guid id, CancellationToken ct)
     {
-        // TODO
-        return View();
+        var post = await _postService.GetByIdAsync(id, ct);
+
+        if (post == null)
+            return NotFound();
+
+        var model = _mapper.Map<EditPostViewModel>(post);
+        return View(model);
     }
 
     [Authorize(Roles = "User,Admin")]
     [HttpPost("edit/{id:guid}")]
-    public IActionResult Edit(Guid id, string title, string content)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(Guid id, EditPostViewModel model, CancellationToken ct)
     {
-        // TODO
-        return RedirectToAction(nameof(Index));
+        if (!ModelState.IsValid)
+            return View(model);
+
+        try
+        {
+            var dto = _mapper.Map<UpdatePostDto>(model);
+            var userId = GetCurrentUserId();
+
+            await _postService.UpdateAsync(id, dto, userId, ct);
+            return RedirectToAction(nameof(Index), "Post");
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(model);
+        }
     }
 
     [Authorize(Roles = "User,Admin")]
     [HttpPost("delete/{id:guid}")]
-    public IActionResult Delete(Guid id)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        // TODO
-        return RedirectToAction(nameof(Index));
+        var userId = GetCurrentUserId();
+
+        await _postService.DeleteAsync(id, userId, ct);
+
+        return RedirectToAction(nameof(Index), "Post");
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(claim, out var id) ? id :
+            throw new UnauthorizedException("User is not authenticated.");
     }
 }
