@@ -1,9 +1,14 @@
 using System.Text;
 using BlogSystem.Application;
+using BlogSystem.Application.Interfaces.Security;
 using BlogSystem.Infrastructure;
 using BlogSystem.Application.Validators.User;
+using BlogSystem.Infrastructure.Persistence;
+using BlogSystem.Infrastructure.Seed;
+
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -108,4 +113,21 @@ app.MapControllerRoute(
 // API controllers
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<BlogDbContext>();
+        var passwordHasher = services.GetRequiredService<IPasswordHasher>();
+
+        await SeedData.InitializeAsync(context, passwordHasher);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}
+
 app.Run();
+
