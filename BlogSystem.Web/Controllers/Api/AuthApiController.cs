@@ -19,13 +19,13 @@ public class AuthApiController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginDto dto, CancellationToken ct)
     {
         var result = await _authService.LoginAsync(dto, ct);
-        return Created("", result);
+        return Ok(result);
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserDto dto, CancellationToken ct)
     {
         var result = await _authService.RegisterAsync(dto, ct);
-        return CreatedAtAction(nameof(Login), result);
+        return CreatedAtAction(nameof(Register), result);
     }
 }

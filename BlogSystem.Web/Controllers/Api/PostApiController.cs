@@ -94,12 +94,7 @@ public class PostApiController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (userIdClaim == null)
-            return Unauthorized();
-
-        var userId = Guid.Parse(userIdClaim);
+        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
         await _postService.DeleteAsync(id, userId, ct);
 
