@@ -14,7 +14,7 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // AutoMapper
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 // FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
