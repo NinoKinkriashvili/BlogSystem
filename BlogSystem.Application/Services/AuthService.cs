@@ -5,6 +5,7 @@ using BlogSystem.Application.Interfaces.Repositories;
 using BlogSystem.Application.Interfaces.Security;
 using BlogSystem.Application.Interfaces.Services;
 using BlogSystem.Domain.Entities;
+using BlogSystem.Domain.Enums;
 
 namespace BlogSystem.Application.Services;
 
@@ -62,6 +63,8 @@ public class AuthService : IAuthService
             throw new BadRequestException("Username already exists");
 
         var user = _mapper.Map<User>(dto);
+
+        user.Role = UserRole.User;
 
         user.PasswordHash = _passwordHasher.Hash(dto.Password);
         user.CreatedAt = DateTime.UtcNow;
