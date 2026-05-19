@@ -23,7 +23,18 @@ public static class DependencyInjection
         services.AddScoped<IPostRepository, PostRepository>();
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
-        services.AddScoped<IJwtService, JwtService>();
+
+        services.AddScoped<IJwtService>(sp =>
+        {
+            var config = sp.GetRequiredService<IConfiguration>();
+
+            return new JwtService(
+                config["Jwt:Key"]!,
+                config["Jwt:Issuer"]!,
+                config["Jwt:Audience"]!,
+                int.Parse(config["Jwt:Expires"]!)
+            );
+        });
 
         return services;
     }
