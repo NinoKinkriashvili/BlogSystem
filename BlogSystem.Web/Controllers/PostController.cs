@@ -1,6 +1,5 @@
 using AutoMapper;
 using BlogSystem.Application.DTOs.Post;
-using BlogSystem.Application.Exceptions;
 using BlogSystem.Application.Interfaces.Services;
 using BlogSystem.Web.Models.Post;
 using Microsoft.AspNetCore.Authorization;
@@ -30,6 +29,7 @@ public class PostController : Controller
 
         var model = _mapper.Map<PostListViewModel>(result);
         model.Search = search;
+
         return View(model);
     }
 
@@ -64,9 +64,8 @@ public class PostController : Controller
         try
         {
             var dto = _mapper.Map<CreatePostDto>(model);
-            var userId = GetCurrentUserId();
 
-            await _postService.CreateAsync(dto, userId, ct);
+            await _postService.CreateAsync(dto, ct);
 
             return RedirectToAction(nameof(Index));
         }
@@ -101,10 +100,10 @@ public class PostController : Controller
         try
         {
             var dto = _mapper.Map<UpdatePostDto>(model);
-            var userId = GetCurrentUserId();
 
-            await _postService.UpdateAsync(id, dto, userId, ct);
-            return RedirectToAction(nameof(Index), "Post");
+            await _postService.UpdateAsync(id, dto, ct);
+
+            return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
@@ -118,17 +117,8 @@ public class PostController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var userId = GetCurrentUserId();
+        await _postService.DeleteAsync(id, ct);
 
-        await _postService.DeleteAsync(id, userId, ct);
-
-        return RedirectToAction(nameof(Index), "Post");
-    }
-
-    private Guid GetCurrentUserId()
-    {
-        var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        return Guid.TryParse(claim, out var id) ? id :
-            throw new UnauthorizedException("User is not authenticated.");
+        return RedirectToAction(nameof(Index));
     }
 }
