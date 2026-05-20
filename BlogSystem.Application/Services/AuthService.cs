@@ -79,7 +79,7 @@ public class AuthService : IAuthService
             UserName = user.UserName,
             Email = user.Email,
             UserRole = user.Role,
-            Token = token
+            Token = string.Empty
         };
     }
 }
