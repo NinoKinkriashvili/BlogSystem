@@ -22,11 +22,11 @@ public class SeedData
 
         var admin = new User
         {
-            FirstName = "System",
+            FirstName = "Administrator",
             LastName = "Admin",
             UserName = "admin",
-            Email = "admin@system.com",
-            PasswordHash = passwordHasher.Hash("Admin123!"),
+            Email = "admin@asterbit.ge",
+            PasswordHash = passwordHasher.Hash("Adminadmin123."),
             Role = UserRole.Admin
         };
 
