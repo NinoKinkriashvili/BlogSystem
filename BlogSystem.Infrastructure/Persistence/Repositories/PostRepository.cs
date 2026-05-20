@@ -23,9 +23,11 @@ public class PostRepository : IPostRepository
 
     public async Task<IEnumerable<Post>> GetAllAsync(int page, int itemPerPage, CancellationToken ct)
     {
+        var safePage = SafePage(page);
+
         return await _context.Posts
             .Include(x => x.User)
-            .Skip((page - 1) * itemPerPage)
+            .Skip((safePage - 1) * itemPerPage)
             .Take(itemPerPage)
             .ToListAsync(ct);
     }
@@ -44,7 +46,7 @@ public class PostRepository : IPostRepository
         }
 
         return await query
-            .Skip((page - 1) * itemPerPage)
+            .Skip((SafePage(page) - 1) * itemPerPage)
             .Take(itemPerPage)
             .ToListAsync(ct);
     }
@@ -69,7 +71,7 @@ public class PostRepository : IPostRepository
         return await _context.Posts
             .Where(x => x.UserId == userId)
             .Include(x => x.User)
-            .Skip((page - 1) * itemPerPage)
+            .Skip((SafePage(page) - 1) * itemPerPage)
             .Take(itemPerPage)
             .ToListAsync(ct);
     }
@@ -100,5 +102,10 @@ public class PostRepository : IPostRepository
         return await _context.Posts
             .Where(x => x.UserId == userId)
             .CountAsync(ct);
+    }
+
+    private int SafePage(int page)
+    {
+        return page < 1 ? 1 : page;
     }
 }
