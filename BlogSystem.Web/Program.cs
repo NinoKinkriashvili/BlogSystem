@@ -8,15 +8,35 @@ using BlogSystem.Infrastructure.Persistence;
 using BlogSystem.Infrastructure.Seed;
 
 using FluentValidation;
+using FluentValidation.AspNetCore;
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// MVC
-builder.Services.AddControllersWithViews();
+// 1. FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
+builder.Services.AddFluentValidationAutoValidation();
+
+// MVC/API
+builder.Services.AddControllersWithViews()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(e => e.Value?.Errors.Count > 0)
+                .ToDictionary(
+                    k => k.Key,
+                    v => v.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                );
+            return new BadRequestObjectResult(new { errors });
+        };
+    });
 
 // Layers
 builder.Services.AddApplication();
@@ -24,9 +44,6 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 // AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-// FluentValidation
-builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
 
 // Authentication
 builder.Services.AddAuthentication(options =>
