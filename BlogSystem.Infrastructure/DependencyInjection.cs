@@ -36,6 +36,9 @@ public static class DependencyInjection
             );
         });
 
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUser, CurrentUser>();
+
         return services;
     }
 }
