@@ -1,5 +1,6 @@
 using System.Text;
 using BlogSystem.Application;
+using BlogSystem.Application.Exceptions;
 using BlogSystem.Application.Interfaces.Security;
 using BlogSystem.Infrastructure;
 using BlogSystem.Application.Validators.User;
@@ -87,9 +88,30 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // Error handling
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var exception = context.Features
+            .Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
+
+        if (exception is BaseException baseEx)
+        {
+            context.Response.StatusCode = baseEx.StatusCode;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new { error = baseEx.Message });
+        }
+        else
+        {
+            context.Response.StatusCode = 500;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new { error = "Internal Server Error" });
+        }
+    });
+});
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
