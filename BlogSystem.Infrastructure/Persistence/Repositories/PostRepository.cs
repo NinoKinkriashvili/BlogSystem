@@ -88,7 +88,10 @@ public class PostRepository : IPostRepository
 
     public async Task DeleteAsync(Post post, CancellationToken ct)
     {
-        _context.Posts.Remove(post);
+        post.IsDeleted = true;
+        post.UpdatedAt = DateTime.UtcNow;
+
+        _context.Posts.Update(post);
         await _context.SaveChangesAsync(ct);
     }
 
