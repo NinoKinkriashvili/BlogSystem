@@ -6,6 +6,7 @@ using BlogSystem.Infrastructure;
 using BlogSystem.Application.Validators.User;
 using BlogSystem.Infrastructure.Persistence;
 using BlogSystem.Infrastructure.Seed;
+
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
