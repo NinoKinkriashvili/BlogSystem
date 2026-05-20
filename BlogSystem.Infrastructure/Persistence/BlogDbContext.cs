@@ -18,5 +18,8 @@ public class BlogDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BlogDbContext).Assembly);
+
+        modelBuilder.Entity<Post>()
+            .HasQueryFilter(x => !x.IsDeleted);
     }
 }
