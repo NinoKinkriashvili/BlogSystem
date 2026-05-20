@@ -21,6 +21,14 @@ public class PostRepository : IPostRepository
             .FirstOrDefaultAsync(x => x.Id == id, ct);
     }
 
+    public async Task<Post?> GetByIdForAdminAsync(Guid id, CancellationToken ct)
+    {
+        return await _context.Posts
+            .IgnoreQueryFilters()
+            .Include(x => x.User)
+            .FirstOrDefaultAsync(x => x.Id == id, ct);
+    }
+
     public async Task<IEnumerable<Post>> GetAllAsync(int page, int itemPerPage, CancellationToken ct)
     {
         var safePage = SafePage(page);
@@ -32,8 +40,22 @@ public class PostRepository : IPostRepository
             .ToListAsync(ct);
     }
 
+    public async Task<IEnumerable<Post>> GetAllForAdminAsync(int page, int itemPerPage, CancellationToken ct)
+    {
+        var safePage = SafePage(page);
+
+        return await _context.Posts
+            .IgnoreQueryFilters()
+            .Include(x => x.User)
+            .Skip((safePage - 1) * itemPerPage)
+            .Take(itemPerPage)
+            .ToListAsync(ct);
+    }
+
     public async Task<IEnumerable<Post>> SearchAsync(string? searchResult, int page, int itemPerPage, CancellationToken ct)
     {
+        var safePage = SafePage(page);
+
         var query = _context.Posts
             .Include(x => x.User)
             .AsQueryable();
@@ -41,17 +63,15 @@ public class PostRepository : IPostRepository
         if (!string.IsNullOrWhiteSpace(searchResult))
         {
             query = query.Where(x =>
-                x.Title.Contains(searchResult) ||
-                x.Content.Contains(searchResult));
+                x.Title.Contains(searchResult));
         }
 
         return await query
-            .Skip((SafePage(page) - 1) * itemPerPage)
+            .Skip((safePage - 1) * itemPerPage)
             .Take(itemPerPage)
             .ToListAsync(ct);
     }
 
-    // Total number of posts
     public async Task<int> GetCountAsync(string? searchResult = null, CancellationToken ct = default)
     {
         var query = _context.Posts.AsQueryable();
@@ -59,8 +79,7 @@ public class PostRepository : IPostRepository
         if (!string.IsNullOrWhiteSpace(searchResult))
         {
             query = query.Where(x =>
-                x.Title.Contains(searchResult) ||
-                x.Content.Contains(searchResult));
+                x.Title.Contains(searchResult));
         }
 
         return await query.CountAsync(ct);
@@ -68,10 +87,25 @@ public class PostRepository : IPostRepository
 
     public async Task<IEnumerable<Post>> GetByUserIdAsync(Guid userId, int page, int itemPerPage, CancellationToken ct)
     {
+        var safePage = SafePage(page);
+
         return await _context.Posts
             .Where(x => x.UserId == userId)
             .Include(x => x.User)
-            .Skip((SafePage(page) - 1) * itemPerPage)
+            .Skip((safePage - 1) * itemPerPage)
+            .Take(itemPerPage)
+            .ToListAsync(ct);
+    }
+
+    public async Task<IEnumerable<Post>> GetByUserIdForAdminAsync(Guid userId, int page, int itemPerPage, CancellationToken ct)
+    {
+        var safePage = SafePage(page);
+
+        return await _context.Posts
+            .IgnoreQueryFilters()
+            .Where(x => x.UserId == userId)
+            .Include(x => x.User)
+            .Skip((safePage - 1) * itemPerPage)
             .Take(itemPerPage)
             .ToListAsync(ct);
     }
