@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BlogSystem.Web.Controllers;
 
 [Route("posts")]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class PostController : Controller
 {
     private readonly IPostService _postService;
@@ -27,10 +28,7 @@ public class PostController : Controller
             ? await _postService.GetAllAsync(page, pageSize, ct)
             : await _postService.SearchAsync(search, page, pageSize, ct);
 
-        var model = _mapper.Map<PostListViewModel>(result);
-        model.Search = search;
-
-        return View(model);
+        return View(result);
     }
 
     [HttpGet("{id:guid}")]
@@ -64,7 +62,6 @@ public class PostController : Controller
         try
         {
             var dto = _mapper.Map<CreatePostDto>(model);
-
             await _postService.CreateAsync(dto, ct);
 
             return RedirectToAction(nameof(Index));
@@ -100,7 +97,6 @@ public class PostController : Controller
         try
         {
             var dto = _mapper.Map<UpdatePostDto>(model);
-
             await _postService.UpdateAsync(id, dto, ct);
 
             return RedirectToAction(nameof(Index));
@@ -118,7 +114,6 @@ public class PostController : Controller
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         await _postService.DeleteAsync(id, ct);
-
         return RedirectToAction(nameof(Index));
     }
 }

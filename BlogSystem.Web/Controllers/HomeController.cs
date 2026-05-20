@@ -4,6 +4,7 @@ using BlogSystem.Web.Models.Shared;
 
 namespace BlogSystem.Web.Controllers;
 
+[ApiExplorerSettings(IgnoreApi = true)]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;

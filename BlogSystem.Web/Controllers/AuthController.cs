@@ -1,12 +1,16 @@
+using System.Security.Claims;
 using BlogSystem.Application.DTOs.User;
 using BlogSystem.Application.Interfaces.Services;
 using BlogSystem.Web.Models.Auth;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace BlogSystem.Web.Controllers;
 
 [Route("auth")]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class AuthController : Controller
 {
     private readonly IAuthService _authService;
@@ -31,12 +35,39 @@ public class AuthController : Controller
         if (!ModelState.IsValid)
             return View(model);
 
-        var dto = _mapper.Map<LoginDto>(model);
+        try
+        {
+            var dto = _mapper.Map<LoginDto>(model);
+            var result = await _authService.LoginAsync(dto, ct);
 
-        var result = await _authService.LoginAsync(dto, ct);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, result.UserId.ToString()),
+                new Claim(ClaimTypes.Name, result.UserName),
+                new Claim(ClaimTypes.Email, result.Email),
+                new Claim(ClaimTypes.Role, result.UserRole.ToString())
+            };
 
-        // TODO: JWT
-        return RedirectToAction(nameof(PostController.Index), "Post");
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = true
+            };
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties
+            );
+
+            return RedirectToAction("Index", "Post");
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(model);
+        }
     }
 
     [HttpGet("register")]
@@ -55,9 +86,9 @@ public class AuthController : Controller
         try
         {
             var dto = _mapper.Map<RegisterUserDto>(model);
-
             var result = await _authService.RegisterAsync(dto, ct);
-            return RedirectToAction(nameof(PostController.Index), "Post");
+
+            return RedirectToAction(nameof(RegisterSuccess));
         }
         catch (Exception ex)
         {
@@ -66,10 +97,16 @@ public class AuthController : Controller
         }
     }
 
-    [HttpPost("logout")]
-    public IActionResult Logout()
+    [HttpGet("register-success")]
+    public IActionResult RegisterSuccess()
     {
-        // TODO: later clear cookie/session
-        return RedirectToAction(nameof(Login), "Auth");
+        return View();
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return RedirectToAction("Login", "Auth");
     }
 }
