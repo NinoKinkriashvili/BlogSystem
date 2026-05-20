@@ -1,0 +1,83 @@
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="d-flex justify-content-center align-items-center mt-5">
+    <div class="register-container" style="width: 400px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 16px; box-shadow: 0 0 40px rgba(0,0,0,0.6); color: white;">
+
+        <h3 class="text-center mb-4">Create Account</h3>
+        <div id="errorBox" class="text-danger text-center mb-3"></div>
+
+        <form id="registerForm">
+            <div class="mb-3">
+                <label class="form-label text-secondary small">First Name</label>
+                <input type="text" id="firstName" class="form-control bg-dark text-white border-0" placeholder="Enter your first name" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-secondary small">Last Name</label>
+                <input type="text" id="lastName" class="form-control bg-dark text-white border-0" placeholder="Enter your last name" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-secondary small">Username</label>
+                <input type="text" id="userName" class="form-control bg-dark text-white border-0" placeholder="Choose a username" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-secondary small">Email</label>
+                <input type="email" id="email" class="form-control bg-dark text-white border-0" placeholder="name@example.com" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-secondary small">Password</label>
+                <input type="password" id="password" class="form-control bg-dark text-white border-0" placeholder="Create a secure password" required />
+            </div>
+
+            <button type="submit" id="registerBtn" class="btn btn-primary w-100 mt-3 py-2">Register</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // შენი არსებული JS ლოგიკა უცვლელი რჩება
+    const form = document.getElementById("registerForm");
+    const errorBox = document.getElementById("errorBox");
+    const registerBtn = document.getElementById("registerBtn");
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        errorBox.innerText = "";
+
+        const data = {
+            firstName: document.getElementById("firstName").value.trim(),
+            lastName: document.getElementById("lastName").value.trim(),
+            userName: document.getElementById("userName").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            password: document.getElementById("password").value.trim()
+        };
+
+        registerBtn.disabled = true;
+        registerBtn.innerText = "Loading...";
+
+        try {
+            const response = await fetch("/api/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                const resData = await response.json();
+                errorBox.innerText = resData.errors ? Object.values(resData.errors)[0][0] : "Registration failed";
+                return;
+            }
+            window.location.href = "/auth/register-success";
+        } catch {
+            errorBox.innerText = "Server error. Try again later.";
+        } finally {
+            registerBtn.disabled = false;
+            registerBtn.innerText = "Register";
+        }
+    });
+</script>

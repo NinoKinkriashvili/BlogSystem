@@ -1,0 +1,67 @@
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_Layout"; // აუცილებლად დატოვე Layout
+}
+
+<div class="d-flex justify-content-center align-items-center mt-5">
+    <div class="login-container" style="width: 400px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 16px; box-shadow: 0 0 40px rgba(0,0,0,0.6); color: white;">
+
+        <h3 class="text-center mb-4">Welcome Back</h3>
+        <div id="errorBox" class="text-danger text-center mb-3"></div>
+
+        <form id="loginForm">
+            <div class="mb-3">
+                <label class="form-label text-secondary small">Email</label>
+                <input type="email" id="email" class="form-control bg-dark text-white border-0" placeholder="name@example.com" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-secondary small">Password</label>
+                <input type="password" id="password" class="form-control bg-dark text-white border-0" placeholder="Enter your password" required />
+            </div>
+
+            <button type="submit" id="loginBtn" class="btn btn-primary w-100 mt-3 py-2">Login</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById("loginForm");
+    const errorBox = document.getElementById("errorBox");
+    const loginBtn = document.getElementById("loginBtn");
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        errorBox.innerText = "";
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        loginBtn.disabled = true;
+        loginBtn.innerText = "Loading...";
+
+        try {
+            const response = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                errorBox.innerText = data.message || "Invalid credentials";
+                return;
+            }
+
+            if (data.token) {
+                localStorage.setItem("token", data.token);
+                window.location.href = "/Home/Index";
+            }
+        } catch {
+            errorBox.innerText = "Server error. Try again later.";
+        } finally {
+            loginBtn.disabled = false;
+            loginBtn.innerText = "Login";
+        }
+    });
+</script>

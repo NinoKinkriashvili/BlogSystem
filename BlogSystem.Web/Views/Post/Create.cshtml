@@ -1,0 +1,62 @@
+@model BlogSystem.Web.Models.Post.CreatePostViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Post</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(135deg, #0f172a, #020617); min-height: 100vh; color: white; display: flex; justify-content: center; align-items: center; }
+        .container { width: 520px; padding: 35px; border-radius: 18px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+        h2 { text-align: center; margin-bottom: 25px; font-size: 26px; }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: none; outline: none; background: rgba(255,255,255,0.08); color: white; font-size: 14px; box-sizing: border-box; }
+        textarea { height: 180px; resize: none; }
+        input:focus, textarea:focus { box-shadow: 0 0 10px rgba(59,130,246,0.6); background: rgba(255,255,255,0.12); }
+        button { width: 100%; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; background: linear-gradient(90deg, #3b82f6, #6366f1); color: white; transition: 0.25s; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(59,130,246,0.3); }
+        .back { display: block; text-align: center; margin-top: 15px; color: #94a3b8; text-decoration: none; font-size: 13px; }
+        .back:hover { color: white; }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h2>Create Post</h2>
+    <form id="createPostForm">
+        <input type="text" id="Title" placeholder="Title" required />
+        <textarea id="Content" placeholder="Content" required></textarea>
+        <button type="button" id="submitBtn">Create Post</button>
+    </form>
+    <a class="back" href="/posts">← Back to Posts</a>
+</div>
+
+<script src="~/js/api.js"></script>
+<script>
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+        const postData = {
+            Title: document.getElementById('Title').value,
+            Content: document.getElementById('Content').value
+        };
+
+        try {
+            const response = await authenticatedFetch('/api/posts', { // მიუთითე შენი API-ს სწორი მისამართი
+                method: 'POST',
+                body: JSON.stringify(postData)
+            });
+
+            if (response.ok) {
+                window.location.href = '/posts';
+            } else {
+                const errorData = await response.json();
+                alert('შეცდომა: ' + (errorData.message || 'ვერ მოხერხდა პოსტის შექმნა'));
+            }
+        } catch (err) {
+            alert('სერვერთან კავშირის შეცდომა');
+        }
+    });
+</script>
+</body>
+</html>

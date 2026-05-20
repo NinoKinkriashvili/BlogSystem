@@ -1,0 +1,61 @@
+@model BlogSystem.Application.DTOs.Shared.PagedResultDto<BlogSystem.Application.DTOs.Post.PostDto>
+
+@{
+ViewData["Title"] = "Posts";
+}
+
+<style>
+    .container { max-width: 1000px; margin: 20px auto; padding: 0 25px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .search-box { display: flex; gap: 10px; }
+    .search-box input { padding: 10px 12px; border-radius: 10px; border: none; background: rgba(255,255,255,0.08); color: white; width: 200px; outline: none; }
+    .post-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); padding: 22px; border-radius: 18px; margin-bottom: 18px; backdrop-filter: blur(10px); }
+    .title { font-size: 20px; font-weight: 700; margin-bottom: 10px; color: white; }
+    .content { color: #cbd5e1; line-height: 1.5; font-size: 14px; margin-top: 8px; }
+    .meta { margin-top: 12px; font-size: 12px; color: #94a3b8; }
+    .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+    .read-more { padding: 8px 16px; border-radius: 8px; border: none; background: #3b82f6; color: white; text-decoration: none; text-align: center; }
+    .edit-btn { padding: 8px 16px; border-radius: 8px; border: none; background: #10b981; color: white; text-decoration: none; text-align: center; }
+    .pagination { display: flex; justify-content: center; gap: 10px; margin-top: 35px; }
+    .page-btn { padding: 8px 12px; border-radius: 8px; background: rgba(255,255,255,0.08); color: white; text-decoration: none; }
+    .page-btn:hover { background: rgba(59,130,246,0.3); }
+</style>
+
+<div class="container">
+    <div class="header">
+        <h1 style="color: white;">Posts</h1>
+        <div class="search-box">
+            <form method="get" action="/posts" class="d-flex gap-2">
+                <input name="search" value="@Context.Request.Query["search"]" placeholder="Search..." />
+                <button type="submit" class="btn btn-primary">Search</button>
+                @if (!string.IsNullOrEmpty(Context.Request.Query["search"]))
+                {
+                <a href="/posts" class="btn btn-secondary">Clear</a>
+                }
+            </form>
+            <a href="/posts/create" class="btn btn-success">Create</a>
+        </div>
+    </div>
+
+    @foreach (var post in Model.Items)
+    {
+    <div class="post-card">
+        <div class="title">@post.Title</div>
+        <div class="content">
+            @(post.Content.Length > 220 ? post.Content.Substring(0, 220) + "..." : post.Content)
+        </div>
+        <div class="meta">Author: @post.AuthorName | @post.PublishDate.ToString("yyyy-MM-dd")</div>
+        <div class="btn-group">
+            <a href="/posts/@post.Id" class="read-more" style="flex:1;">Read More</a>
+            <a href="/posts/edit/@post.Id" class="edit-btn" style="flex:1;">Update</a>
+        </div>
+    </div>
+    }
+
+    <div class="pagination">
+        @for (int i = 1; i <= Math.Ceiling((double)Model.TotalCount / Model.PageSize); i++)
+        {
+        <a class="page-btn" href="/posts?page=@i&search=@Context.Request.Query["search"]">@i</a>
+        }
+    </div>
+</div>
