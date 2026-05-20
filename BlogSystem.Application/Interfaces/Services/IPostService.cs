@@ -13,9 +13,9 @@ public interface IPostService
 
     Task<PagedResultDto<PostDto>> GetByUserIdAsync(Guid userId, int page, int itemPerPage, CancellationToken ct);
 
-    Task<PostDto> CreateAsync(CreatePostDto dto, Guid userId, CancellationToken ct);
+    Task<PostDto> CreateAsync(CreatePostDto dto, CancellationToken ct);
 
-    Task<PostDto> UpdateAsync(Guid id, UpdatePostDto dto, Guid userId, CancellationToken ct);
+    Task<PostDto> UpdateAsync(Guid id, UpdatePostDto dto, CancellationToken ct);
 
-    Task DeleteAsync(Guid id, Guid userId, CancellationToken ct);
+    Task DeleteAsync(Guid id, CancellationToken ct);
 }
