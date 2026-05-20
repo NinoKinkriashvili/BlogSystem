@@ -6,13 +6,9 @@ using BlogSystem.Infrastructure;
 using BlogSystem.Application.Validators.User;
 using BlogSystem.Infrastructure.Persistence;
 using BlogSystem.Infrastructure.Seed;
-
 using FluentValidation;
 using FluentValidation.AspNetCore;
-
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -181,4 +177,3 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using BlogSystem.Application.DTOs.Post;
+using BlogSystem.Application.DTOs.Shared;
 using BlogSystem.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,31 +18,23 @@ public class PostApiController : ControllerBase
         _postService = postService;
     }
 
+    // PUBLIC / USER ENDPOINTS
 
     [AllowAnonymous]
     [HttpGet]
-    public async Task<IActionResult> GetAll(
-        int page = 1,
-        int pageSize = 10,
-        CancellationToken ct = default)
+    public async Task<IActionResult> GetAll([FromQuery] PagingDto paging, CancellationToken ct = default)
     {
-        var result = await _postService.GetAllAsync(page, pageSize, ct);
+        var result = await _postService.GetAllAsync(paging.Page, paging.PageSize, ct);
         return Ok(result);
     }
-
 
     [AllowAnonymous]
     [HttpGet("search")]
-    public async Task<IActionResult> Search(
-        string? search,
-        int page = 1,
-        int pageSize = 10,
-        CancellationToken ct = default)
+    public async Task<IActionResult> Search([FromQuery] string? search, [FromQuery] PagingDto paging, CancellationToken ct = default)
     {
-        var result = await _postService.SearchAsync(search, page, pageSize, ct);
+        var result = await _postService.SearchAsync(search, paging.Page, paging.PageSize, ct);
         return Ok(result);
     }
-
 
     [AllowAnonymous]
     [HttpGet("{id:guid}")]
@@ -55,49 +48,55 @@ public class PostApiController : ControllerBase
         return Ok(result);
     }
 
+    // USER / ADMIN (CREATE)
 
     [Authorize(Roles = "User,Admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePostDto dto, CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
 
-        if (userIdClaim == null)
-            return Unauthorized();
-
-        var userId = Guid.Parse(userIdClaim);
-
-        var result = await _postService.CreateAsync(dto, userId, ct);
+        var result = await _postService.CreateAsync(dto, userId.Value, ct);
 
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
+    // USER / ADMIN (UPDATE)
 
     [Authorize(Roles = "User,Admin")]
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePostDto dto, CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
 
-        if (userIdClaim == null)
-            return Unauthorized();
-
-        var userId = Guid.Parse(userIdClaim);
-
-        var result = await _postService.UpdateAsync(id, dto, userId, ct);
+        var result = await _postService.UpdateAsync(id, dto, userId.Value, ct);
 
         return Ok(result);
     }
 
+    // USER / ADMIN (DELETE)
 
     [Authorize(Roles = "User,Admin")]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
 
-        await _postService.DeleteAsync(id, userId, ct);
+        await _postService.DeleteAsync(id, userId.Value, ct);
 
         return NoContent();
+    }
+
+    // HELPERS
+
+    private Guid? GetUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return null;
+
+        return Guid.Parse(userIdClaim);
     }
 }
