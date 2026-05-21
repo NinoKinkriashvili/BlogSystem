@@ -14,9 +14,13 @@ public class PostMappingProfile : Profile
             .ForMember(dest => dest.AuthorEmail,
                 opt => opt.MapFrom(src => src.User.Email))
             .ForMember(dest => dest.PublishDate,
-                opt => opt.MapFrom(src => src.CreatedAt));
+                opt => opt.MapFrom(src => src.CreatedAt))
+            .ForMember(dest => dest.AuthorId,
+                opt => opt.MapFrom(src => src.UserId));
 
-        CreateMap<CreatePostDto, Post>();
+        CreateMap<CreatePostDto, Post>()
+            .ForMember(dest => dest.UserId,
+                opt => opt.MapFrom(src => src.AuthorId));
 
         CreateMap<UpdatePostDto, Post>();
     }
