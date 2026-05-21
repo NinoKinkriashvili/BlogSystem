@@ -1,0 +1,112 @@
+@{
+    ViewData["Title"] = "Post Published";
+    Layout = "_Layout";
+}
+
+<style>
+    :root {
+        --primary: #3b82f6;
+        --card-bg: rgba(255, 255, 255, 0.04);
+        --card-border: rgba(255, 255, 255, 0.08);
+        --text-primary: #f1f5f9;
+        --text-muted: #cbd5e1;
+    }
+
+    .success-container {
+        max-width: 500px;
+        margin: 80px auto 0;
+        padding: 0 20px;
+    }
+
+    .success-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        backdrop-filter: blur(15px);
+        border-radius: 24px;
+        padding: 40px 30px;
+        text-align: center;
+        color: white;
+        box-shadow: 0 20px 40px -15px rgba(0,0,0,0.6);
+    }
+
+    .success-icon {
+        font-size: 3.5rem;
+        margin-bottom: 15px;
+    }
+
+    .success-title {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #10b981, #34d399);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 15px;
+    }
+
+    .success-message {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        background: linear-gradient(135deg, #6366f1, #3b82f6);
+        color: white;
+        border: none;
+        box-shadow: 0 8px 20px rgba(79,70,229,0.4);
+        margin-bottom: 15px;
+        display: block;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .btn-back:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(99,102,241,0.6);
+        background: linear-gradient(135deg, #4f46e5, #2563eb);
+    }
+
+    .btn-create-another {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 24px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        background: transparent;
+        color: white;
+        border: 1.5px solid var(--primary);
+    }
+
+    .btn-create-another:hover {
+        background: rgba(59,130,246,0.1);
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="success-container">
+    <div class="success-card">
+        <div class="success-icon">✅</div>
+        <div class="success-title">Post Published Successfully!</div>
+        <p class="success-message">
+            Your post is now live. Readers can find it in the posts list.
+        </p>
+        <a asp-controller="Post" asp-action="Index" class="btn-back">← Back to All Posts</a>
+        <a asp-controller="Post" asp-action="Create" class="btn-create-another">✍️ Create Another Post</a>
+    </div>
+</div>
