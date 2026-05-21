@@ -42,7 +42,7 @@
         };
 
         try {
-            const response = await authenticatedFetch('/api/posts', { // მიუთითე შენი API-ს სწორი მისამართი
+            const response = await authenticatedFetch('/api/posts', {
                 method: 'POST',
                 body: JSON.stringify(postData)
             });
