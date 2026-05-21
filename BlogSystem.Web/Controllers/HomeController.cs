@@ -1,32 +1,35 @@
-using System.Diagnostics;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using BlogSystem.Web.Models.Shared;
+using BlogSystem.Application.Interfaces.Services;
+using BlogSystem.Application.DTOs.Post;
 
-namespace BlogSystem.Web.Controllers;
-
-[ApiExplorerSettings(IgnoreApi = true)]
-public class HomeController : Controller
+namespace BlogSystem.Web.Controllers
 {
-    private readonly ILogger<HomeController> _logger;
-
-    public HomeController(ILogger<HomeController> logger)
+    public class HomeController : Controller
     {
-        _logger = logger;
-    }
+        private readonly IPostService _postService;
 
-    public IActionResult Index()
-    {
-        return View();
-    }
+        public HomeController(IPostService postService)
+        {
+            _postService = postService;
+        }
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+        public async Task<IActionResult> Index()
+        {
+            var authResult = await HttpContext.AuthenticateAsync("Cookies");
+            if (authResult.Succeeded && authResult.Principal != null)
+            {
+                HttpContext.User = authResult.Principal;
+            }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var pagedResult = await _postService.GetAllAsync(1, 6, HttpContext.RequestAborted);
+                var recentPosts = pagedResult?.Items ?? new List<PostDto>();
+                return View(recentPosts); // Dashboard
+            }
+
+            return View(new List<PostDto>()); // Guest
+        }
     }
 }

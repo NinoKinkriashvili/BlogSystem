@@ -61,7 +61,7 @@ public class AuthController : Controller
                 authProperties
             );
 
-            return RedirectToAction("Index", "Post");
+            return RedirectToAction("Index", "Home");
         }
         catch (Exception ex)
         {
@@ -107,6 +107,6 @@ public class AuthController : Controller
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        return RedirectToAction("Login", "Auth");
+        return RedirectToAction("Index", "Home");
     }
 }
