@@ -1,62 +1,144 @@
 @model BlogSystem.Web.Models.Post.CreatePostViewModel
-
 @{
-    Layout = null;
+ViewData["Title"] = "Create Post";
+Layout = "_Layout";
 }
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Create Post</title>
-    <style>
-        body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(135deg, #0f172a, #020617); min-height: 100vh; color: white; display: flex; justify-content: center; align-items: center; }
-        .container { width: 520px; padding: 35px; border-radius: 18px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
-        h2 { text-align: center; margin-bottom: 25px; font-size: 26px; }
-        input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: none; outline: none; background: rgba(255,255,255,0.08); color: white; font-size: 14px; box-sizing: border-box; }
-        textarea { height: 180px; resize: none; }
-        input:focus, textarea:focus { box-shadow: 0 0 10px rgba(59,130,246,0.6); background: rgba(255,255,255,0.12); }
-        button { width: 100%; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; background: linear-gradient(90deg, #3b82f6, #6366f1); color: white; transition: 0.25s; }
-        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(59,130,246,0.3); }
-        .back { display: block; text-align: center; margin-top: 15px; color: #94a3b8; text-decoration: none; font-size: 13px; }
-        .back:hover { color: white; }
-    </style>
-</head>
+<style>
+    :root {
+        --primary: #3b82f6;
+        --card-bg: rgba(255, 255, 255, 0.04);
+        --card-border: rgba(255, 255, 255, 0.08);
+        --text-primary: #f1f5f9;
+        --text-muted: #cbd5e1;
+        --input-bg: rgba(255, 255, 255, 0.08);
+        --input-border: rgba(255, 255, 255, 0.15);
+    }
 
-<body>
-<div class="container">
-    <h2>Create Post</h2>
-    <form id="createPostForm">
-        <input type="text" id="Title" placeholder="Title" required />
-        <textarea id="Content" placeholder="Content" required></textarea>
-        <button type="button" id="submitBtn">Create Post</button>
-    </form>
-    <a class="back" href="/posts">← Back to Posts</a>
+    .create-container {
+        max-width: 700px;
+        margin: 48px auto 0;
+        padding: 0 20px;
+    }
+
+    .create-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        backdrop-filter: blur(15px);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 20px 40px -15px rgba(0,0,0,0.6);
+        color: white;
+    }
+
+    .create-title {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #6366f1, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 30px;
+    }
+
+    .form-label {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+
+    .form-control {
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: 12px;
+        padding: 12px 16px;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+        background: var(--input-bg);
+        color: white;
+    }
+
+
+    .form-control::placeholder {
+        color: #94a3b8;
+        opacity: 1;
+        font-size: 0.95rem;
+    }
+
+    .btn-publish {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 1rem;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        color: white;
+        transition: all 0.25s ease;
+        box-shadow: 0 8px 20px rgba(16,185,129,0.4);
+        margin-top: 20px;
+    }
+
+    .btn-publish:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(16,185,129,0.6);
+        background: linear-gradient(135deg, #059669, #047857);
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        background: transparent;
+        color: white;
+        border: 1.5px solid var(--primary);
+        margin-bottom: 25px;
+    }
+
+    .btn-back:hover {
+        background: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(59,130,246,0.4);
+    }
+
+    .validation-summary {
+        color: #f87171;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="create-container">
+    <a asp-controller="Post" asp-action="Index" class="btn-back">← Back to Posts</a>
+    <div class="create-card">
+        <div class="create-title">✍️ Create New Post</div>
+        <div asp-validation-summary="All" class="validation-summary"></div>
+
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <input asp-for="Title" class="form-control" placeholder="Enter your post title" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Content</label>
+                <textarea asp-for="Content" class="form-control" rows="6" placeholder="Write your content here..."></textarea>
+            </div>
+            <button type="submit" class="btn-publish">🚀 Publish Post</button>
+        </form>
+    </div>
 </div>
-
-<script src="~/js/api.js"></script>
-<script>
-    document.getElementById('submitBtn').addEventListener('click', async () => {
-        const postData = {
-            Title: document.getElementById('Title').value,
-            Content: document.getElementById('Content').value
-        };
-
-        try {
-            const response = await authenticatedFetch('/api/posts', {
-                method: 'POST',
-                body: JSON.stringify(postData)
-            });
-
-            if (response.ok) {
-                window.location.href = '/posts';
-            } else {
-                const errorData = await response.json();
-                alert('შეცდომა: ' + (errorData.message || 'ვერ მოხერხდა პოსტის შექმნა'));
-            }
-        } catch (err) {
-            alert('სერვერთან კავშირის შეცდომა');
-        }
-    });
-</script>
-</body>
-</html>

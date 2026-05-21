@@ -1,38 +1,443 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<BlogSystem.Application.DTOs.Post.PostDto>
+@using System.Security.Claims
+@using System.Text.RegularExpressions
+@{
+ViewData["Title"] = "Home";
+var isLoggedIn = User.Identity?.IsAuthenticated == true;
+var userId = isLoggedIn ? User.FindFirstValue(ClaimTypes.NameIdentifier) : null;
+var isAdmin = isLoggedIn && User.IsInRole("Admin");
 }
 
-<div class="container mt-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4 text-white">🚀 Welcome to BlogSystem 🚀</h1>
-        <p class="text-secondary">Choose how you want to interact with the system:</p>
+<style>
+    :root {
+        --primary: #3b82f6;
+        --success: #10b981;
+        --danger: #ef4444;
+        --dark-bg: #0b1220;
+        --card-bg: rgba(255, 255, 255, 0.04);
+        --card-border: rgba(255, 255, 255, 0.08);
+        --text-primary: #f1f5f9;
+        --text-muted: #cbd5e1; /* brighter */
+        --btn-border-visible: rgba(255,255,255,0.25);
+    }
+
+
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+        margin-top: auto;
+        flex-wrap: wrap;
+        align-items: center;
+        width: 100%;
+    }
+
+    button.btn-action {
+        font-family: inherit;
+        line-height: 1;
+        box-sizing: border-box;
+        flex-shrink: 0;
+    }
+
+    body {
+        background: var(--dark-bg);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .home-container {
+        max-width: 1000px;
+        margin: 48px auto 0;
+        padding: 0 25px;
+    }
+
+    .welcome-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #6366f1, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .text-role {
+        color: var(--text-muted);
+        text-align: center;
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+
+    .quick-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 50px;
+    }
+
+    .btn {
+        padding: 10px 22px;
+        border-radius: 30px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.25s ease;
+        border: 1.5px solid transparent;
+        cursor: pointer;
+        font-size: 0.9rem;
+        letter-spacing: 0.3px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn-outline {
+        background: transparent;
+        border-color: var(--btn-border-visible);
+        color: white;
+    }
+
+    .btn-outline:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #6366f1, #3b82f6);
+        color: white;
+        border-color: transparent;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(79,70,229,0.5);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16,185,129,0.4);
+    }
+
+    .btn-myposts {
+        border-color: #a78bfa;
+        background: rgba(167,139,250,0.15);
+    }
+
+    .btn-myposts:hover {
+        background: rgba(167,139,250,0.3);
+        transform: translateY(-2px);
+    }
+
+    .btn-browse {
+        background: rgba(59,130,246,0.2);
+        border-color: var(--primary);
+        color: white;
+        margin-top: 20px;
+    }
+
+    .btn-browse:hover {
+        background: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(59,130,246,0.4);
+    }
+
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .post-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        padding: 25px;
+        border-radius: 24px;
+        backdrop-filter: blur(15px);
+        transition: transform 0.2s, box-shadow 0.3s;
+        box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .post-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 30px 50px -20px rgba(0,0,0,0.7);
+        border-color: rgba(99,102,241,0.3);
+    }
+
+    .post-card .title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+
+    .post-card .content {
+        color: var(--text-muted);
+        line-height: 1.6;
+        font-size: 0.9rem;
+        flex-grow: 1;
+    }
+
+    .post-card .meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin: 15px 0;
+        flex-wrap: wrap;
+    }
+
+    .meta .author-avatar {
+        width: 24px;
+        height: 24px;
+        background: linear-gradient(135deg, #6366f1, #3b82f6);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+        font-weight: bold;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1.5px solid;
+        text-decoration: none !important;
+        transition: all 0.2s;
+        cursor: pointer;
+        line-height: 1.5;
+    }
+
+    .btn-read {
+        border-color: var(--primary);
+        background: rgba(59,130,246,0.15);
+    }
+
+    .btn-read:hover {
+        background: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(59,130,246,0.4);
+    }
+
+    .btn-edit {
+        border-color: var(--success);
+        background: rgba(16,185,129,0.15);
+    }
+
+    .btn-edit:hover {
+        background: var(--success);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(16,185,129,0.4);
+    }
+
+    .btn-delete {
+        border-color: var(--danger);
+        background: rgba(239, 68, 68, 0.15);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        padding: 0 8px;
+        height: 34px;
+        font-size: 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        transition: all 0.2s;
+        border: 1.5px solid var(--danger);
+        color: white;
+        white-space: nowrap;
+    }
+
+    .btn-delete:hover {
+        background: var(--danger);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .guest-section {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+
+    .guest-left {
+        flex: 1 1 300px;
+    }
+
+    .guest-right {
+        flex: 1 1 300px;
+    }
+
+    .guest-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        padding: 35px 30px;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5);
+    }
+
+    .typing-text {
+        font-size: 1rem;
+        color: #a5b4fc;
+        min-height: 30px;
+        margin-top: 15px;
+    }
+
+    .guest-left h2 {
+        color: var(--text-primary);
+        margin-bottom: 15px;
+    }
+
+    .guest-left p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+    }
+
+    @@media (max-width: 768px) {
+        .home-container { margin-top: 30px; }
+        .guest-section { flex-direction: column; }
+    }
+</style>
+
+<div class="home-container">
+    @if (isLoggedIn)
+    {
+    <!-- DASHBOARD -->
+    <div class="welcome-title">
+        👋 Welcome, @User.Identity.Name!
+    </div>
+    <p class="text-role">You are logged in as <strong>@User.FindFirstValue(ClaimTypes.Role)</strong></p>
+
+    <div class="quick-actions">
+        <a asp-controller="Post" asp-action="Index" class="btn btn-outline">📋 All Posts</a>
+        <a asp-controller="Post" asp-action="MyPosts" class="btn btn-outline btn-myposts">👤 My Posts</a>
+        @if (User.IsInRole("User") || User.IsInRole("Admin"))
+        {
+        <a asp-controller="Post" asp-action="Create" class="btn btn-success">➕ Create</a>
+        }
     </div>
 
-    <div class="row mt-5 justify-content-center gap-4 align-items-stretch">
-
-        <div class="col-md-4 d-flex">
-            <div class="card p-4 shadow-sm border-0 bg-dark text-white flex-fill d-flex flex-column">
-                <h3 class="mb-3">🖥️ User Interface</h3>
-                <p class="flex-grow-1">See the application in action.</p>
-                <div class="mt-auto">
-                    <a asp-controller="Post" asp-action="Index" class="btn btn-primary w-100">
-                        Go to Website 🚀
-                    </a>
-                </div>
+    <h3 class="text-white mb-4">📌 Latest Posts</h3>
+    @if (Model != null && Model.Any())
+    {
+    <div class="card-grid">
+        @foreach (var post in Model)
+        {
+        var slug = Regex.Replace(post.Title.ToLower(), @"[^a-z0-9\s-]", "").Trim().Replace(' ', '-');
+        var isAuthor = isLoggedIn && post.AuthorId.ToString() == userId;
+        var canEdit = isLoggedIn && (isAdmin || isAuthor);
+        var canDelete = isLoggedIn && (isAdmin || isAuthor);
+        <div class="post-card">
+            <div class="title">@post.Title</div>
+            <div class="content">
+                @(post.Content?.Length > 120 ? post.Content[..120] + "..." : post.Content)
+            </div>
+            <div class="meta">
+                <div class="author-avatar">@post.AuthorName[0].ToString().ToUpper()</div>
+                <span>@post.AuthorName</span>
+                <span>•</span>
+                <span>@post.PublishDate.ToString("MMM dd, yyyy")</span>
+            </div>
+            <div class="action-buttons">
+                <!-- Read More – back to Dashboard -->
+                <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" asp-route-slug="@slug" asp-route-source="dashboard" class="btn-action btn-read">📖 Read</a>
+                @if (canEdit)
+                {
+                    <!-- Edit – with confirmation, source dashboard -->
+                    <a asp-controller="Post" asp-action="Edit" asp-route-id="@post.Id" asp-route-source="dashboard" class="btn-action btn-edit">✏️ Edit</a>
+                }
+                @if (canDelete)
+                {
+                    <form asp-controller="Post" asp-action="Delete" asp-route-id="@post.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this post?');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="source" value="dashboard" />
+                        <button type="submit" class="btn-action btn-delete">🗑️ Delete</button>
+                    </form>
+                }
             </div>
         </div>
-
-        <div class="col-md-4 d-flex">
-            <div class="card p-4 shadow-sm border-0 bg-dark text-white flex-fill d-flex flex-column">
-                <h3 class="mb-3">⚙️ API Documentation</h3>
-                <p class="flex-grow-1">Explore endpoints and test logic.</p>
-                <div class="mt-auto">
-                    <a href="/swagger" target="_blank" class="btn btn-primary w-100">
-                        Open Swagger 🚀
-                    </a>
-                </div>
-            </div>
-        </div>
-
+        }
     </div>
+    }
+    else
+    {
+    <div class="text-center text-muted mt-4">
+        <h5>No posts yet. Be the first! 🚀</h5>
+        @if (User.IsInRole("User") || User.IsInRole("Admin"))
+        {
+        <a asp-controller="Post" asp-action="Create" class="btn btn-success mt-3">Create Post</a>
+        }
+    </div>
+    }
+    }
+    else
+    {
+    <!-- GUEST VIEW -->
+    <div class="guest-section">
+        <div class="guest-left">
+            <h2 class="display-5 fw-bold">Discover BlogSystem</h2>
+            <p>Read posts, explore topics and join the conversation.</p>
+            <a asp-controller="Post" asp-action="Index" class="btn btn-browse">📋 Browse Posts</a>
+        </div>
+        <div class="guest-right">
+            <div class="guest-card">
+                <h3 class="text-white mb-3">🔐 Join the community</h3>
+                <p style="color: #f1f5f9; font-size: 1rem; font-weight: 500;">Create your account and start writing posts in seconds.</p>
+                <a asp-controller="Auth" asp-action="Register" class="btn btn-primary w-100 mb-2">Register Now</a>
+                <a asp-controller="Auth" asp-action="Login" class="btn btn-outline w-100">Sign In</a>
+                <div class="typing-text text-center" id="typing"></div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+    <script>
+        const texts = ["Share your thoughts...", "Read amazing stories...", "Connect with others..."];
+        let i = 0, j = 0, current = "", isDeleting = false;
+        const speed = 100;
+        function type() {
+            const el = document.getElementById("typing");
+            if (!el) return;
+            if (!isDeleting) {
+                current = texts[i].substring(0, j + 1);
+                el.innerHTML = current;
+                j++;
+                if (j === texts[i].length) { isDeleting = true; setTimeout(type, 1000); }
+                else { setTimeout(type, speed); }
+            } else {
+                current = texts[i].substring(0, j - 1);
+                el.innerHTML = current;
+                j--;
+                if (j === 0) { isDeleting = false; i = (i + 1) % texts.length; setTimeout(type, 300); }
+                else { setTimeout(type, speed / 2); }
+            }
+        }
+        type();
+    </script>
+    }
+    }
 </div>
