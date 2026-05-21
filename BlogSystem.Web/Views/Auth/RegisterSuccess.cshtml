@@ -1,15 +1,101 @@
 @{
     ViewData["Title"] = "Registration Successful";
+    Layout = "_Layout";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 text-center">
-            <div class="card p-5 bg-dark text-white border-0 shadow">
-                <h2 class="text-success">🚀 Success!</h2>
-                <p class="mt-3">თქვენ წარმატებით გაიარეთ რეგისტრაცია.</p>
-                <a href="/Auth/Login" class="btn btn-primary mt-3">გადასვლა Login-ზე</a>
-            </div>
-        </div>
+<style>
+    :root {
+        --primary: #3b82f6;
+        --card-bg: rgba(255, 255, 255, 0.04);
+        --card-border: rgba(255, 255, 255, 0.08);
+        --text-primary: #f1f5f9;
+        --text-muted: #cbd5e1;
+    }
+
+    .success-container {
+        max-width: 500px;
+        margin: 80px auto 0;
+        padding: 0 20px;
+    }
+
+    .success-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        backdrop-filter: blur(15px);
+        border-radius: 24px;
+        padding: 40px 30px;
+        text-align: center;
+        color: white;
+        box-shadow: 0 20px 40px -15px rgba(0,0,0,0.6);
+    }
+
+    .success-icon {
+        font-size: 3.5rem;
+        margin-bottom: 15px;
+    }
+
+    .success-title {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #10b981, #34d399);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 15px;
+    }
+
+    .success-message {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+
+    .btn-login {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        background: linear-gradient(135deg, #6366f1, #3b82f6);
+        color: white;
+        border: none;
+        box-shadow: 0 8px 20px rgba(79,70,229,0.4);
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(99,102,241,0.6);
+        background: linear-gradient(135deg, #4f46e5, #2563eb);
+    }
+
+    .home-link {
+        display: block;
+        margin-top: 20px;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .home-link:hover {
+        color: #60a5fa;
+        text-decoration: underline;
+    }
+</style>
+
+<div class="success-container">
+    <div class="success-card">
+        <div class="success-icon">🎉</div>
+        <div class="success-title">Registration Successful!</div>
+        <p class="success-message">
+            Your account has been created. Welcome to BlogSystem! You can now sign in to start writing and exploring.
+        </p>
+        <a asp-controller="Auth" asp-action="Login" class="btn-login">🔐 Sign In Now</a>
+        <a asp-controller="Home" asp-action="Index" class="home-link">← Back to Home</a>
     </div>
 </div>

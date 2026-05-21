@@ -1,67 +1,141 @@
 @{
     ViewData["Title"] = "Login";
-    Layout = "_Layout"; // აუცილებლად დატოვე Layout
+    Layout = "_Layout";
 }
 
-<div class="d-flex justify-content-center align-items-center mt-5">
-    <div class="login-container" style="width: 400px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 16px; box-shadow: 0 0 40px rgba(0,0,0,0.6); color: white;">
+<style>
+    :root {
+        --primary: #3b82f6;
+        --card-bg: rgba(255, 255, 255, 0.04);
+        --card-border: rgba(255, 255, 255, 0.08);
+        --text-primary: #f1f5f9;
+        --text-muted: #94a3b8;
+        --input-bg: rgba(255, 255, 255, 0.06);
+        --input-border: rgba(255, 255, 255, 0.12);
+    }
 
-        <h3 class="text-center mb-4">Welcome Back</h3>
-        <div id="errorBox" class="text-danger text-center mb-3"></div>
+    .login-container {
+        max-width: 440px;
+        margin: 60px auto 0;
+        padding: 40px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        backdrop-filter: blur(15px);
+        border-radius: 24px;
+        box-shadow: 0 20px 40px -15px rgba(0,0,0,0.6);
+        color: white;
+    }
 
-        <form id="loginForm">
-            <div class="mb-3">
-                <label class="form-label text-secondary small">Email</label>
-                <input type="email" id="email" class="form-control bg-dark text-white border-0" placeholder="name@example.com" required />
-            </div>
+    .login-title {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #6366f1, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-            <div class="mb-3">
-                <label class="form-label text-secondary small">Password</label>
-                <input type="password" id="password" class="form-control bg-dark text-white border-0" placeholder="Enter your password" required />
-            </div>
+    .form-label {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
 
-            <button type="submit" id="loginBtn" class="btn btn-primary w-100 mt-3 py-2">Login</button>
-        </form>
+    .form-control {
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: 12px;
+        padding: 12px 16px;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+        background: var(--input-bg);
+        color: white;
+    }
+
+    .form-control::placeholder {
+        color: var(--text-muted);
+        opacity: 0.7;
+    }
+
+    .btn-login {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        padding: 12px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 1rem;
+        background: linear-gradient(135deg, #6366f1, #3b82f6);
+        border: none;
+        color: white;
+        transition: all 0.25s ease;
+        box-shadow: 0 8px 20px rgba(79,70,229,0.3);
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(99,102,241,0.5);
+        background: linear-gradient(135deg, #4f46e5, #2563eb);
+    }
+
+    .validation-summary {
+        color: #f87171;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .register-link {
+        text-align: center;
+        margin-top: 20px;
+        color: var(--text-muted);
+    }
+
+    .register-link a {
+        color: var(--primary);
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .register-link a:hover {
+        color: #60a5fa;
+        text-decoration: underline;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-title">Welcome Back</div>
+    <div asp-validation-summary="All" class="validation-summary"></div>
+
+    <form method="post" asp-action="Login" asp-controller="Auth">
+        @Html.AntiForgeryToken()
+
+        <div class="mb-4">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" placeholder="name@example.com" required />
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" placeholder="Enter your password" required />
+        </div>
+
+        <button type="submit" class="btn-login">🔐 Login</button>
+    </form>
+
+    <div class="register-link">
+        Don't have an account? <a asp-controller="Auth" asp-action="Register">Register here</a>
     </div>
 </div>
-
-<script>
-    const form = document.getElementById("loginForm");
-    const errorBox = document.getElementById("errorBox");
-    const loginBtn = document.getElementById("loginBtn");
-
-    form.addEventListener("submit", async function (e) {
-        e.preventDefault();
-        errorBox.innerText = "";
-
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value.trim();
-
-        loginBtn.disabled = true;
-        loginBtn.innerText = "Loading...";
-
-        try {
-            const response = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password })
-            });
-
-            const data = await response.json();
-            if (!response.ok) {
-                errorBox.innerText = data.message || "Invalid credentials";
-                return;
-            }
-
-            if (data.token) {
-                localStorage.setItem("token", data.token);
-                window.location.href = "/Home/Index";
-            }
-        } catch {
-            errorBox.innerText = "Server error. Try again later.";
-        } finally {
-            loginBtn.disabled = false;
-            loginBtn.innerText = "Login";
-        }
-    });
-</script>
