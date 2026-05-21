@@ -8,4 +8,6 @@ public class PostDto
     public string AuthorName { get; set; } = string.Empty;
     public string AuthorEmail { get; set; } = string.Empty;
     public DateTime PublishDate { get; set; }
+
+    public Guid AuthorId { get; set; }
 }
