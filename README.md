@@ -60,8 +60,9 @@ The project follows a **Layered Architecture (Clean Architecture style)**:
 dotnet restore
 dotnet ef database update
 dotnet run
+```
 
 👤 Author
 Nino Kinkriashvili
-.NET | Backend Developer (Learning Project)
+.NET | Backend Developer (Learning Project) 🚀
 
