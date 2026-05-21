@@ -37,6 +37,13 @@ The project follows a **Layered Architecture (Clean Architecture style)**:
 - Unit Tests (xUnit, Moq)
 - C# (.NET 8)
 
+## Frontend
+
+- ASP.NET Core MVC (Razor Views)
+- Bootstrap (CSS framework)
+- Custom CSS (inline styles)
+- Vanilla JavaScript (Fetch API for backend communication)
+
 ## Features
 
 - User Registration & Login  
