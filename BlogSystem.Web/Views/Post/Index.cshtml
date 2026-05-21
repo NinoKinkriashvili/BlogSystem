@@ -348,8 +348,7 @@
             </form>
             @if (isLoggedIn)
             {
-                <a asp-controller="Post" asp-action="MyPosts" class="btn btn-outline" style="border-color: #a78bfa; background: rgba(167,139,250,0.1);">👤 My Posts</a>
-                <a asp-controller="Post" asp-action="Create" class="btn btn-success">➕ Create Post</a>
+                <a asp-controller="Post" asp-action="Create" asp-route-source="@(isMyPosts ? "my" : "all")" class="btn btn-success">➕ Create Post</a>
             }
         </div>
     </div>

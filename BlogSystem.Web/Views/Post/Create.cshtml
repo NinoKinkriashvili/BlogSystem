@@ -1,7 +1,11 @@
 @model BlogSystem.Web.Models.Post.CreatePostViewModel
 @{
-ViewData["Title"] = "Create Post";
-Layout = "_Layout";
+    ViewData["Title"] = "Create Post";
+    Layout = "_Layout";
+    var source = ViewBag.Source as string;
+    var backText = source == "my" ? "← Back to My Posts" : (source == "dashboard" ? "← Back to Dashboard" : "← Back to Posts");
+    var backAction = source == "my" ? "MyPosts" : (source == "dashboard" ? "Index" : "Index");
+    var backController = source == "dashboard" ? "Home" : "Post";
 }
 
 <style>
@@ -123,13 +127,15 @@ Layout = "_Layout";
 </style>
 
 <div class="create-container">
-    <a asp-controller="Post" asp-action="Index" class="btn-back">← Back to Posts</a>
+    <a asp-controller="@backController" asp-action="@backAction" class="btn-back">@backText</a>
     <div class="create-card">
         <div class="create-title">✍️ Create New Post</div>
         <div asp-validation-summary="All" class="validation-summary"></div>
 
         <form asp-action="Create" method="post">
             @Html.AntiForgeryToken()
+            <input type="hidden" name="source" value="@source" />
+
             <div class="mb-3">
                 <label class="form-label">Title</label>
                 <input asp-for="Title" class="form-control" placeholder="Enter your post title" required />

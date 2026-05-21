@@ -1,6 +1,9 @@
 @{
     ViewData["Title"] = "Post Published";
     Layout = "_Layout";
+    var backController = ViewBag.BackController as string ?? "Post";
+    var backAction = ViewBag.BackAction as string ?? "Index";
+    var backText = ViewBag.BackText as string ?? "← Back to Posts";
 }
 
 <style>
@@ -104,9 +107,9 @@
         <div class="success-icon">✅</div>
         <div class="success-title">Post Published Successfully!</div>
         <p class="success-message">
-            Your post is now live. Readers can find it in the posts list.
+            Your post is now live.
         </p>
-        <a asp-controller="Post" asp-action="Index" class="btn-back">← Back to All Posts</a>
-        <a asp-controller="Post" asp-action="Create" class="btn-create-another">✍️ Create Another Post</a>
+        <a asp-controller="@backController" asp-action="@backAction" class="btn-back">@backText</a>
+        <a asp-controller="Post" asp-action="Create" asp-route-source="@ViewBag.Source" class="btn-create-another">✍️ Create Another Post</a>
     </div>
 </div>
