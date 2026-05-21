@@ -63,8 +63,9 @@ public class PostController : Controller
 
     [Authorize(Roles = "User,Admin")]
     [HttpGet("create")]
-    public IActionResult Create()
+    public IActionResult Create(string? source = null)
     {
+        ViewBag.Source = source;
         return View();
     }
 
@@ -78,9 +79,8 @@ public class PostController : Controller
         try
         {
             var dto = _mapper.Map<CreatePostDto>(model);
-            dto.AuthorId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             await _postService.CreateAsync(dto, ct);
-            return RedirectToAction(nameof(CreateSuccess));
+            return RedirectToAction(nameof(CreateSuccess), new { source = Request.Form["source"].FirstOrDefault() });
         }
         catch (Exception ex)
         {
@@ -91,8 +91,10 @@ public class PostController : Controller
 
     [HttpGet("create/success")]
     [Authorize(Roles = "User,Admin")]
-    public IActionResult CreateSuccess()
+    public IActionResult CreateSuccess(string? source = null)
     {
+        ViewBag.Source = source;
+        SetBackInfo(source);
         return View();
     }
 
