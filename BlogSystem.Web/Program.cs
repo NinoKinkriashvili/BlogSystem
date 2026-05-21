@@ -63,9 +63,27 @@ builder.Services.AddAuthentication(options =>
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
         };
+    })
+    .AddCookie("Cookies", options =>
+    {
+        options.LoginPath = "/auth/login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    // API-სთვის JWT-პოლისი
+    options.AddPolicy("ApiPolicy", policy =>
+        policy.RequireAuthenticatedUser()  // ან მოთხოვნილი Claims-ები
+            .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme));
+    // MVC-სთვის Cookie-პოლისი
+    options.AddPolicy("MvcPolicy", policy =>
+        policy.RequireAuthenticatedUser()
+            .AddAuthenticationSchemes("Cookies"));
+});
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -156,7 +174,7 @@ app.UseAuthorization();
 // MVC routes
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Welcome}/{action=Index}/{id?}");
 
 // API controllers
 app.MapControllers();
