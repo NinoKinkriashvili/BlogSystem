@@ -85,16 +85,28 @@ public class PostRepository : IPostRepository
         return await query.CountAsync(ct);
     }
 
-    public async Task<IEnumerable<Post>> GetByUserIdAsync(Guid userId, int page, int itemPerPage, CancellationToken ct)
+    public async Task<List<Post>> GetByUserIdAsync(Guid userId, string? search, int page, int itemPerPage, CancellationToken ct)
     {
-        var safePage = SafePage(page);
+        var query = _context.Posts.Where(p => p.UserId == userId);
 
-        return await _context.Posts
-            .Where(x => x.UserId == userId)
-            .Include(x => x.User)
-            .Skip((safePage - 1) * itemPerPage)
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(p => p.Title.Contains(search));
+
+        return await query
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((page - 1) * itemPerPage)
             .Take(itemPerPage)
             .ToListAsync(ct);
+    }
+
+    public async Task<int> GetCountByUserIdAsync(Guid userId, string? search, CancellationToken ct)
+    {
+        var query = _context.Posts.Where(p => p.UserId == userId);
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(p => p.Title.Contains(search));
+
+        return await query.CountAsync(ct);
     }
 
     public async Task<IEnumerable<Post>> GetByUserIdForAdminAsync(Guid userId, int page, int itemPerPage, CancellationToken ct)
