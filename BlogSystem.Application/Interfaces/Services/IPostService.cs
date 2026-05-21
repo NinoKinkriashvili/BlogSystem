@@ -11,6 +11,8 @@ public interface IPostService
 
     Task<PagedResultDto<PostDto>> SearchAsync(string? searchResult, int page, int itemPerPage, CancellationToken ct);
 
+    Task<PagedResultDto<PostDto>> GetByUserIdAsync(Guid userId, string? search, int page, int itemPerPage, CancellationToken ct);
+
     Task<PagedResultDto<PostDto>> GetByUserIdAsync(Guid userId, int page, int itemPerPage, CancellationToken ct);
 
     Task<PostDto> CreateAsync(CreatePostDto dto, CancellationToken ct);

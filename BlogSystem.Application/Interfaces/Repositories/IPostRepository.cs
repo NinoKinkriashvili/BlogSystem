@@ -16,7 +16,8 @@ public interface IPostRepository
 
     Task<int> GetCountAsync(string? searchResult = null, CancellationToken ct = default);
 
-    Task<IEnumerable<Post>> GetByUserIdAsync(Guid userId, int page, int itemPerPage, CancellationToken ct);
+    Task<List<Post>> GetByUserIdAsync(Guid userId, string? search, int page, int itemPerPage, CancellationToken ct);
+    Task<int> GetCountByUserIdAsync(Guid userId, string? search, CancellationToken ct);
 
     Task<IEnumerable<Post>> GetByUserIdForAdminAsync(Guid userId, int page, int itemPerPage, CancellationToken ct);
 
