@@ -64,12 +64,17 @@ public class PostService : IPostService
 
     public async Task<PagedResultDto<PostDto>> GetByUserIdAsync(Guid userId, int page, int itemPerPage, CancellationToken ct)
     {
+        return await GetByUserIdAsync(userId, null, page, itemPerPage, ct);
+    }
+
+    public async Task<PagedResultDto<PostDto>> GetByUserIdAsync(Guid userId, string? search, int page, int itemPerPage, CancellationToken ct)
+    {
         var user = await _userRepository.GetByIdAsync(userId, ct);
         if (user == null)
             throw new NotFoundException("User not found");
 
-        var posts = await _postRepository.GetByUserIdAsync(userId, page, itemPerPage, ct);
-        var count = await _postRepository.GetCountByUserIdAsync(userId, ct);
+        var posts = await _postRepository.GetByUserIdAsync(userId, search, page, itemPerPage, ct);
+        var count = await _postRepository.GetCountByUserIdAsync(userId, search, ct);
 
         return new PagedResultDto<PostDto>
         {
