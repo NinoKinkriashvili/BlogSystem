@@ -62,7 +62,6 @@ dotnet ef database update
 dotnet run
 ```
 
-👤 Author
-Nino Kinkriashvili
+👤 Author<br>
+Nino Kinkriashvili<br>
 .NET | Backend Developer (Learning Project) 🚀
-
