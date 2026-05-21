@@ -10,7 +10,7 @@ public class UpdatePostDtoValidator : AbstractValidator<UpdatePostDto>
         RuleFor(post => post.Title)
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("Title is required.")
-            .MaximumLength(100).WithMessage("Title cannot exceed 10 characters.");
+            .MaximumLength(100).WithMessage("Title cannot exceed 100 characters.");
 
         RuleFor(post => post.Content)
             .Cascade(CascadeMode.Stop)
