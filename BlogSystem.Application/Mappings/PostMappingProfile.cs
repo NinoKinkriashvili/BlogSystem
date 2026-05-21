@@ -17,10 +17,7 @@ public class PostMappingProfile : Profile
                 opt => opt.MapFrom(src => src.CreatedAt))
             .ForMember(dest => dest.AuthorId,
                 opt => opt.MapFrom(src => src.UserId));
-
-        CreateMap<CreatePostDto, Post>()
-            .ForMember(dest => dest.UserId,
-                opt => opt.MapFrom(src => src.AuthorId));
+        CreateMap<CreatePostDto, Post>();
 
         CreateMap<UpdatePostDto, Post>();
     }
