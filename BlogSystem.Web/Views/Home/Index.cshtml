@@ -2,10 +2,10 @@
 @using System.Security.Claims
 @using System.Text.RegularExpressions
 @{
-ViewData["Title"] = "Home";
-var isLoggedIn = User.Identity?.IsAuthenticated == true;
-var userId = isLoggedIn ? User.FindFirstValue(ClaimTypes.NameIdentifier) : null;
-var isAdmin = isLoggedIn && User.IsInRole("Admin");
+    ViewData["Title"] = "Home";
+    var isLoggedIn = User.Identity?.IsAuthenticated == true;
+    var userId = isLoggedIn ? User.FindFirstValue(ClaimTypes.NameIdentifier) : null;
+    var isAdmin = isLoggedIn && User.IsInRole("Admin");
 }
 
 <style>
@@ -326,118 +326,117 @@ var isAdmin = isLoggedIn && User.IsInRole("Admin");
 <div class="home-container">
     @if (isLoggedIn)
     {
-    <!-- DASHBOARD -->
-    <div class="welcome-title">
-        👋 Welcome, @User.Identity.Name!
-    </div>
-    <p class="text-role">You are logged in as <strong>@User.FindFirstValue(ClaimTypes.Role)</strong></p>
-
-    <div class="quick-actions">
-        <a asp-controller="Post" asp-action="Index" class="btn btn-outline">📋 All Posts</a>
-        <a asp-controller="Post" asp-action="MyPosts" class="btn btn-outline btn-myposts">👤 My Posts</a>
-        @if (User.IsInRole("User") || User.IsInRole("Admin"))
-        {
-        <a asp-controller="Post" asp-action="Create" class="btn btn-success">➕ Create</a>
-        }
-    </div>
-
-    <h3 class="text-white mb-4">📌 Latest Posts</h3>
-    @if (Model != null && Model.Any())
-    {
-    <div class="card-grid">
-        @foreach (var post in Model)
-        {
-        var slug = Regex.Replace(post.Title.ToLower(), @"[^a-z0-9\s-]", "").Trim().Replace(' ', '-');
-        var isAuthor = isLoggedIn && post.AuthorId.ToString() == userId;
-        var canEdit = isLoggedIn && (isAdmin || isAuthor);
-        var canDelete = isLoggedIn && (isAdmin || isAuthor);
-        <div class="post-card">
-            <div class="title">@post.Title</div>
-            <div class="content">
-                @(post.Content?.Length > 120 ? post.Content[..120] + "..." : post.Content)
-            </div>
-            <div class="meta">
-                <div class="author-avatar">@post.AuthorName[0].ToString().ToUpper()</div>
-                <span>@post.AuthorName</span>
-                <span>•</span>
-                <span>@post.PublishDate.ToString("MMM dd, yyyy")</span>
-            </div>
-            <div class="action-buttons">
-                <!-- Read More – back to Dashboard -->
-                <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" asp-route-slug="@slug" asp-route-source="dashboard" class="btn-action btn-read">📖 Read</a>
-                @if (canEdit)
-                {
-                    <!-- Edit – with confirmation, source dashboard -->
-                    <a asp-controller="Post" asp-action="Edit" asp-route-id="@post.Id" asp-route-source="dashboard" class="btn-action btn-edit">✏️ Edit</a>
-                }
-                @if (canDelete)
-                {
-                    <form asp-controller="Post" asp-action="Delete" asp-route-id="@post.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this post?');">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="source" value="dashboard" />
-                        <button type="submit" class="btn-action btn-delete">🗑️ Delete</button>
-                    </form>
-                }
-            </div>
+        <!-- DASHBOARD -->
+        <div class="welcome-title">
+            👋 Welcome, @User.Identity.Name!
         </div>
-        }
-    </div>
-    }
-    else
-    {
-    <div class="text-center text-muted mt-4">
-        <h5>No posts yet. Be the first! 🚀</h5>
-        @if (User.IsInRole("User") || User.IsInRole("Admin"))
-        {
-        <a asp-controller="Post" asp-action="Create" class="btn btn-success mt-3">Create Post</a>
-        }
-    </div>
-    }
-    }
-    else
-    {
-    <!-- GUEST VIEW -->
-    <div class="guest-section">
-        <div class="guest-left">
-            <h2 class="display-5 fw-bold">Discover BlogSystem</h2>
-            <p>Read posts, explore topics and join the conversation.</p>
-            <a asp-controller="Post" asp-action="Index" class="btn btn-browse">📋 Browse Posts</a>
-        </div>
-        <div class="guest-right">
-            <div class="guest-card">
-                <h3 class="text-white mb-3">🔐 Join the community</h3>
-                <p style="color: #f1f5f9; font-size: 1rem; font-weight: 500;">Create your account and start writing posts in seconds.</p>
-                <a asp-controller="Auth" asp-action="Register" class="btn btn-primary w-100 mb-2">Register Now</a>
-                <a asp-controller="Auth" asp-action="Login" class="btn btn-outline w-100">Sign In</a>
-                <div class="typing-text text-center" id="typing"></div>
-            </div>
-        </div>
-    </div>
+        <p class="text-role">You are logged in as <strong>@User.FindFirstValue(ClaimTypes.Role)</strong></p>
 
-    @section Scripts {
-    <script>
-        const texts = ["Share your thoughts...", "Read amazing stories...", "Connect with others..."];
-        let i = 0, j = 0, current = "", isDeleting = false;
-        const speed = 100;
-        function type() {
-            const el = document.getElementById("typing");
-            if (!el) return;
-            if (!isDeleting) {
-                current = texts[i].substring(0, j + 1);
-                el.innerHTML = current;
-                j++;
-                if (j === texts[i].length) { isDeleting = true; setTimeout(type, 1000); }
-                else { setTimeout(type, speed); }
-            } else {
-                current = texts[i].substring(0, j - 1);
-                el.innerHTML = current;
-                j--;
-                if (j === 0) { isDeleting = false; i = (i + 1) % texts.length; setTimeout(type, 300); }
-                else { setTimeout(type, speed / 2); }
+        <div class="quick-actions">
+            <a asp-controller="Post" asp-action="Index" class="btn btn-outline">📋 All Posts</a>
+            <a asp-controller="Post" asp-action="MyPosts" class="btn btn-outline btn-myposts">👤 My Posts</a>
+            @if (User.IsInRole("User") || User.IsInRole("Admin"))
+            {
+                <a asp-controller="Post" asp-action="Create" asp-route-source="dashboard" class="btn btn-success">➕ Create</a>
             }
+        </div>
+
+        <h3 class="text-white mb-4">📌 Latest Posts</h3>
+        @if (Model != null && Model.Any())
+        {
+            <div class="card-grid">
+                @foreach (var post in Model)
+                {
+                    var slug = Regex.Replace(post.Title.ToLower(), @"[^a-z0-9\s-]", "").Trim().Replace(' ', '-');
+                    var isAuthor = isLoggedIn && post.AuthorId.ToString() == userId;
+                    var canEdit = isLoggedIn && (isAdmin || isAuthor);
+                    var canDelete = isLoggedIn && (isAdmin || isAuthor);
+                    <div class="post-card">
+                        <div class="title">@post.Title</div>
+                        <div class="content">
+                            @(post.Content?.Length > 120 ? post.Content[..120] + "..." : post.Content)
+                        </div>
+                        <div class="meta">
+                            <div class="author-avatar">@post.AuthorName[0].ToString().ToUpper()</div>
+                            <span>@post.AuthorName</span>
+                            <span>•</span>
+                            <span>@post.PublishDate.ToString("MMM dd, yyyy")</span>
+                        </div>
+                        <div class="action-buttons">
+                            <!-- Read More – back to Dashboard -->
+                            <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" asp-route-slug="@slug" asp-route-source="dashboard" class="btn-action btn-read">📖 Read</a>
+                            @if (canEdit)
+                            {
+                                <a asp-controller="Post" asp-action="Edit" asp-route-id="@post.Id" asp-route-source="dashboard" class="btn-action btn-edit">✏️ Edit</a>
+                            }
+                            @if (canDelete)
+                            {
+                                <form asp-controller="Post" asp-action="Delete" asp-route-id="@post.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this post?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="source" value="dashboard" />
+                                    <button type="submit" class="btn-action btn-delete">🗑️ Delete</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
         }
-        type();
-    </script>
+        else
+        {
+            <div class="text-center text-muted mt-4">
+                <h5>No posts yet. Be the first! 🚀</h5>
+                @if (User.IsInRole("User") || User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Post" asp-action="Create" asp-route-source="dashboard" class="btn btn-success mt-3">Create Post</a>
+                }
+            </div>
+        }
     }
+    else
+    {
+        <!-- GUEST VIEW -->
+        <div class="guest-section">
+            <div class="guest-left">
+                <h2 class="display-5 fw-bold">Discover BlogSystem</h2>
+                <p>Read posts, explore topics and join the conversation.</p>
+                <a asp-controller="Post" asp-action="Index" class="btn btn-browse">📋 Browse Posts</a>
+            </div>
+            <div class="guest-right">
+                <div class="guest-card">
+                    <h3 class="text-white mb-3">🔐 Join the community</h3>
+                    <p style="color: #f1f5f9; font-size: 1rem; font-weight: 500;">Create your account and start writing posts in seconds.</p>
+                    <a asp-controller="Auth" asp-action="Register" class="btn btn-primary w-100 mb-2">Register Now</a>
+                    <a asp-controller="Auth" asp-action="Login" class="btn btn-outline w-100">Sign In</a>
+                    <div class="typing-text text-center" id="typing"></div>
+                </div>
+            </div>
+        </div>
+
+        @section Scripts {
+            <script>
+                const texts = ["Share your thoughts...", "Read amazing stories...", "Connect with others..."];
+                let i = 0, j = 0, current = "", isDeleting = false;
+                const speed = 100;
+                function type() {
+                    const el = document.getElementById("typing");
+                    if (!el) return;
+                    if (!isDeleting) {
+                        current = texts[i].substring(0, j + 1);
+                        el.innerHTML = current;
+                        j++;
+                        if (j === texts[i].length) { isDeleting = true; setTimeout(type, 1000); }
+                        else { setTimeout(type, speed); }
+                    } else {
+                        current = texts[i].substring(0, j - 1);
+                        el.innerHTML = current;
+                        j--;
+                        if (j === 0) { isDeleting = false; i = (i + 1) % texts.length; setTimeout(type, 300); }
+                        else { setTimeout(type, speed / 2); }
+                    }
+                }
+                type();
+            </script>
+        }
     }
 </div>
